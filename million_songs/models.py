@@ -13,6 +13,7 @@ class CdSeries(models.Model):
 
     class Meta:
         db_table = 'cd_series'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -25,6 +26,7 @@ class CdSongs(models.Model):
 
     class Meta:
         db_table = 'cd_songs'
+        ordering = ['id']
 
 
 class Cds(models.Model):
@@ -34,6 +36,7 @@ class Cds(models.Model):
 
     class Meta:
         db_table = 'cds'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -45,6 +48,7 @@ class Characters(models.Model):
 
     class Meta:
         db_table = 'characters'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -55,6 +59,7 @@ class Elements(models.Model):
 
     class Meta:
         db_table = 'elements'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -65,6 +70,7 @@ class Songs(models.Model):
 
     class Meta:
         db_table = 'songs'
+        ordering = ['id']
 
     def __str__(self):
         return self.title
@@ -76,6 +82,7 @@ class UnitMembers(models.Model):
 
     class Meta:
         db_table = 'unit_members'
+        ordering = ['id']
         unique_together = (('unit', 'member'),)
 
 
@@ -85,6 +92,7 @@ class Units(models.Model):
 
     class Meta:
         db_table = 'units'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -111,3 +119,4 @@ class WholeIdView(models.Model):
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'whole_id_view'
+        ordering = ['id']

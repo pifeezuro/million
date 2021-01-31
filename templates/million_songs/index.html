@@ -1,0 +1,17 @@
+<html lang="ja">
+<meta charset="UTF-8">
+<head>
+
+    <title>a</title>
+</head>
+<body>
+<h1>おはよう</h1>
+<hr>
+<p style="color: red">チノちゃんもふもふ</p>
+{% for element in elements %}
+    <p>{{ element.name }}</p>
+{% endfor %}
+<a href="{% url 'register' %}">登録</a><br>
+<a href="{% url 'view' %}">閲覧</a>
+</body>
+</html>

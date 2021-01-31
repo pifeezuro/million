@@ -1,0 +1,69 @@
+{% load static %}
+<html lang="ja">
+<meta charset="UTF-8">
+<head>
+    <title>登録画面</title>
+    <link rel="stylesheet" href="{% static 'css/million_songs/register.css' %}">
+</head>
+<body>
+<h1>アイドル登録</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ character_form.as_p }}
+    <button type="submit" name="character_button">送信</button>
+</form>
+<hr>
+<h1>CDシリーズ登録</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ cd_series_form.as_p }}
+    <button type="submit" name="cd_series_button">送信</button>
+</form>
+<hr>
+<h1>CD登録</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ cds_form.as_p }}
+    <button type="submit" name="cds_button">送信</button>
+</form>
+<hr>
+<h1>ユニット登録</h1>
+<form method="post" style="background-color: beige">
+    {% csrf_token %}
+    {{ unit_form.as_p }}
+    <button type="submit" name="unit_button">送信</button>
+</form>
+<hr>
+<h1>楽曲登録</h1>
+<form method="post">
+    {% csrf_token %}
+    {% if message %}
+    {{ message }}
+    {% endif %}
+    <p>
+        {{ song_form.cd.label_tag }}
+        {{ song_form.cd }}
+    </p>
+    <p>
+        {{ song_form.title.label_tag }}
+        {{ song_form.title }}
+    </p>
+    <p>
+        {{ song_form.has_unit_name.label_tag }}
+        {{ song_form.has_unit_name }}
+    </p>
+    <p id="unit">
+        {{ song_form.unit.label_tag }}
+        {{ song_form.unit }}
+    </p>
+    <div id="singers">
+        {{ song_form.singers.label_tag }}
+        {{ song_form.singers }}
+    </div>
+    <button type="submit" name="song_button">送信</button>
+</form>
+<hr>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="{% static 'js/million_songs/register.js' %}"></script>
+</body>
+</html>

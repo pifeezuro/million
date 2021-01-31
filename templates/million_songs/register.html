@@ -38,15 +38,23 @@
 <form method="post">
     {% csrf_token %}
     {% if message %}
-    {{ message }}
+        {{ message }}
     {% endif %}
     <p>
         {{ song_form.cd.label_tag }}
         {{ song_form.cd }}
     </p>
     <p>
+        {{ song_form.is_existing_song.label_tag }}
+        {{ song_form.is_existing_song }}
+    </p>
+    <p id="title">
         {{ song_form.title.label_tag }}
         {{ song_form.title }}
+    </p>
+    <p id="existing-song">
+        {{ song_form.existing_song.label_tag }}
+        {{ song_form.existing_song }}
     </p>
     <p>
         {{ song_form.has_unit_name.label_tag }}

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 
 from million_songs.entities import CdSeriesExt, CdExt, SongExt, SingerExt
 from million_songs.forms import CharacterForm, CdSeriesForm, CdsForm, UnitForm, SongForm
-from million_songs.models import Elements, Units, UnitMembers, Songs, WholeIdView
+from million_songs.models import Elements, Units, UnitMembers, Songs, WholeIdView, CdSongs
 
 
 def index(request):
@@ -47,41 +47,48 @@ def register(request):
             song_form = SongForm(request.POST)
             if song_form.is_valid():
                 cleaned_data = song_form.cleaned_data
-                song = Songs()
-                song.title = cleaned_data['title']
-                song.cd_id = cleaned_data['cd'].id
+                if cleaned_data['is_existing_song'] and cleaned_data['existing_song'] is None:
+                    return set_field(params, request, '曲名を選んでください')
+                if not cleaned_data['is_existing_song'] and cleaned_data['title'].strip() == '':
+                    return set_field(params, request, '曲名を入力してください')
+                cd_song = CdSongs()
+                cd_song.cd_id = cleaned_data['cd'].id
                 if cleaned_data['has_unit_name']:
                     if cleaned_data['unit'] is None:
-                        params['message'] = 'ユニットを選んでください'
-                        params['character_form'] = CharacterForm()
-                        params['cd_series_form'] = CdSeriesForm()
-                        params['cds_form'] = CdsForm()
-                        params['unit_form'] = UnitForm()
-                        params['song_form'] = SongForm()
-                        return render(request, 'million_songs/register.html', params)
-                    song.unit_id = cleaned_data['unit'].id
+                        return set_field(params, request, 'ユニットを選んでください')
+                    cd_song.unit_id = cleaned_data['unit'].id
                 else:
                     if len(cleaned_data['singers']) == 0:
-                        params['message'] = '歌手を選んでください'
-                        params['character_form'] = CharacterForm()
-                        params['cd_series_form'] = CdSeriesForm()
-                        params['cds_form'] = CdsForm()
-                        params['unit_form'] = UnitForm()
-                        params['song_form'] = SongForm()
-                        return render(request, 'million_songs/register.html', params)
-                song.save()
-                if not cleaned_data['has_unit_name']:
+                        return set_field(params, request, '1人以上の歌手を選んでください')
                     unit = Units()
-                    unit.song_id = song.id
+                    unit.is_everyone = False
                     unit.save()
-                    song.unit_id = unit.id
-                    song.save()
                     for singer in cleaned_data['singers']:
                         unit_member = UnitMembers()
                         unit_member.unit_id = unit.id
                         unit_member.member_id = singer
                         unit_member.save()
+                    cd_song.unit_id = unit.id
+                if cleaned_data['is_existing_song']:
+                    cd_song.song_id = cleaned_data['existing_song'].id
+                else:
+                    song = Songs()
+                    song.title = cleaned_data['title']
+                    song.save()
+                    cd_song.song_id = song.id
+                cd_song.save()
+
                 return redirect('register')
+    params['character_form'] = CharacterForm()
+    params['cd_series_form'] = CdSeriesForm()
+    params['cds_form'] = CdsForm()
+    params['unit_form'] = UnitForm()
+    params['song_form'] = SongForm()
+    return render(request, 'million_songs/register.html', params)
+
+
+def set_field(params, request, message):
+    params['message'] = message
     params['character_form'] = CharacterForm()
     params['cd_series_form'] = CdSeriesForm()
     params['cds_form'] = CdsForm()
@@ -99,6 +106,7 @@ def view(request):
     cd_series_id_old = 0
     cd_id_old = 0
     song_id_old = 0
+    unit_id_old = 0
     for data in whole:
         if data.cd_series_id != cd_series_id_old:
             cd_series = CdSeriesExt(data.cd_series_id, data.cd_series_name)
@@ -108,10 +116,13 @@ def view(request):
             cd = CdExt(data.cd_id, data.cd_series_id, data.cd_name, data.release_date)
             cd_series.cd_list.append(cd)
             cd_id_old = data.cd_id
-        if data.song_id != song_id_old:
+            song_id_old = 0
+            unit_id_old = 0
+        if data.song_id != song_id_old or data.unit_id != unit_id_old:
             song = SongExt(data.song_id, data.cd_id, data.song_title, data.unit_id, data.unit_name)
             cd.song_list.append(song)
             song_id_old = data.song_id
+            unit_id_old = data.unit_id
         singer = SingerExt(data.singer_id, data.singer_name, data.element_id, data.element_name)
         song.singer_list.append(singer)
 

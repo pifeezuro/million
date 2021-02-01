@@ -35,7 +35,7 @@
 </form>
 <hr>
 <h1>楽曲登録</h1>
-<form method="post">
+<form method="post" id="song-reg">
     {% csrf_token %}
     {% if message %}
         {{ message }}
@@ -44,34 +44,46 @@
         {{ song_form.cd.label_tag }}
         {{ song_form.cd }}
     </p>
-    <p>
-        {{ song_form.is_existing_song.label_tag }}
-        {{ song_form.is_existing_song }}
+    <p id="is-existing-song">
+        <label for="id_is_existing_song">{{ song_form.is_existing_song.label }}:</label>
+        <input type="checkbox" name="is_existing_song" id="id_is_existing_song" v-model="is_existing_song">
     </p>
-    <p id="title">
+    <p id="title" v-if="!is_existing_song">
         {{ song_form.title.label_tag }}
         {{ song_form.title }}
     </p>
-    <p id="existing-song">
+    <p id="existing-song" v-if="is_existing_song">
         {{ song_form.existing_song.label_tag }}
         {{ song_form.existing_song }}
     </p>
     <p>
-        {{ song_form.has_unit_name.label_tag }}
-        {{ song_form.has_unit_name }}
+        <label for="id_has_unit_name">{{ song_form.has_unit_name.label }}:</label>
+        <input type="checkbox" name="has_unit_name" id="id_has_unit_name" v-model="has_unit_name">
     </p>
-    <p id="unit">
+    <p id="unit" v-if="has_unit_name">
         {{ song_form.unit.label_tag }}
         {{ song_form.unit }}
     </p>
-    <div id="singers">
+    <div id="singers" v-if="!has_unit_name">
         {{ song_form.singers.label_tag }}
         {{ song_form.singers }}
     </div>
     <button type="submit" name="song_button">送信</button>
+    <hr>
+    <div style="height: 55em" v-if="has_unit_name"></div>
 </form>
-<hr>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+    const SongReg = {
+        data() {
+            return {
+                is_existing_song: false,
+                has_unit_name: false
+            }
+        }
+    }
+    Vue.createApp(SongReg).mount('#song-reg')
+</script>
 <script src="{% static 'js/million_songs/register.js' %}"></script>
 </body>
 </html>

@@ -49,12 +49,12 @@ class UnitForm(forms.Form):
 
 class SongForm(forms.Form):
     cd = forms.ModelChoiceField(label='CD名', required=True, queryset=Cds.objects.all())
-    is_existing_song = forms.BooleanField(label='既存曲', required=False)
-    title = forms.CharField(label='タイトル(既存曲以外)', max_length=100, required=False)
-    existing_song = forms.ModelChoiceField(label='タイトル(既存曲)', required=False, queryset=Songs.objects.all())
+    is_existing_song = forms.BooleanField(label='既存曲を登録', required=False)
+    title = forms.CharField(label='タイトル', max_length=100, required=False)
+    existing_song = forms.ModelChoiceField(label='タイトル', required=False, queryset=Songs.objects.all())
     has_unit_name = forms.BooleanField(label='ユニット名あり', required=False)
     unit = forms.ModelChoiceField(label='ユニット名', required=False, queryset=Units.objects.filter(name__isnull=False))
     singers = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, required=False,
                                         choices=lambda: [(character.id, character.name)
                                                          for character in Characters.objects.all()],
-                                        label='歌手(ユニット名なしの場合)')
+                                        label='歌手')

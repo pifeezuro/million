@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 
 from million_songs.entities import CdSeriesExt, CdExt, SongExt, SingerExt
-from million_songs.forms import CharacterForm, CdSeriesForm, CdsForm, UnitForm, SongForm
+from million_songs.forms import CharacterForm, CdSeriesForm, CdsForm, UnitForm, SongForm, SearchForm
 from million_songs.models import Elements, Units, UnitMembers, Songs, WholeIdView, CdSongs
 
 
@@ -98,7 +98,15 @@ def set_field(params, request, message):
 
 
 def view(request):
+    search_form = SearchForm(request.POST)
     whole = WholeIdView.objects.all()
+    if request.method == 'POST' and search_form.is_valid():
+        cleaned_data = search_form.cleaned_data
+        if cleaned_data['cd'] is not None:
+            whole = whole.filter(cd_id=cleaned_data['cd'].id)
+        if cleaned_data['unit'] is not None:
+            whole = whole.filter(unit_id=cleaned_data['unit'].id)
+
     cd_series_list = []
     cd_series = None
     cd = None
@@ -129,4 +137,4 @@ def view(request):
     if request.method == 'POST':
         pass
 
-    return render(request, 'million_songs/view.html', {'cd_series_list': cd_series_list})
+    return render(request, 'million_songs/view.html', {'cd_series_list': cd_series_list, 'search_form': search_form})

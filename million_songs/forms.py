@@ -58,3 +58,15 @@ class SongForm(forms.Form):
                                         choices=lambda: [(character.id, character.name)
                                                          for character in Characters.objects.all()],
                                         label='歌手')
+
+
+class SearchForm(forms.Form):
+    free = forms.CharField(label='フリー検索', required=False)
+    is_title_only = forms.BooleanField(label='曲名のみで検索', required=False)
+    cd = forms.ModelChoiceField(label='CD名', required=False, queryset=Cds.objects.all())
+    unit = forms.ModelChoiceField(label='ユニット名', required=False, queryset=Units.objects.filter(name__isnull=False))
+    singers = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, required=False,
+                                        choices=lambda: [(character.id, character.name)
+                                                         for character in Characters.objects.all()],
+                                        label='歌手')
+    is_or_search = forms.BooleanField(label='or検索', required=False)

@@ -6,7 +6,42 @@
     <link rel="stylesheet" href="{% static 'css/million_songs/view.css' %}">
 </head>
 <body>
-<h1>おはよう</h1>
+<h1>曲名一覧</h1>
+<h2>検索</h2>
+<form method="post" id="search">
+    {% csrf_token %}
+    <p>
+        {{ search_form.free.label_tag }}
+        {{ search_form.free }}
+    </p>
+    <p>
+        {{ search_form.is_title_only.label_tag }}
+        {{ search_form.is_title_only }}
+    </p>
+    <p>
+        {{ search_form.cd.label_tag }}
+        {{ search_form.cd }}
+    </p>
+    <p>
+        {{ search_form.unit.label_tag }}
+        {{ search_form.unit }}
+    </p>
+    <div>
+        {{ search_form.singers.label_tag }}<br>
+        <label for="id_show">表示</label>
+        <input id="id_show" name="show" type="checkbox" v-model="show_singers">
+
+        <div id="singers_value" v-if="show_singers">
+            {{ search_form.singers }}
+        </div>
+    </div>
+    <p>
+        {{ search_form.is_or_search.label_tag }}
+        {{ search_form.is_or_search }}
+    </p>
+    <button type="submit" name="unit_button">送信</button>
+</form>
+<hr>
 <table style="border: 2px black solid">
     <tr>
         <td>CDシリーズ</td>
@@ -40,6 +75,16 @@
         {% endfor %}
     {% endfor %}
 </table>
-
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+    const SongSearch = {
+        data() {
+            return {
+                show_singers: false
+            }
+        }
+    }
+    Vue.createApp(SongSearch).mount('#search')
+</script>
 </body>
 </html>

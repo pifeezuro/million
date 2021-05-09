@@ -50,29 +50,27 @@
         <td>ユニット名</td>
         <td>歌手名</td>
     </tr>
-    {% for cd_series in cd_series_list %}
-        {% for cd in cd_series.cd_list %}
-            {% for song in cd.song_list %}
-                <tr>
-                    <td>{{ cd_series.name }}</td>
-                    <td>{{ cd.name }}</td>
-                    <td>{{ song.title }}</td>
-                    <td>
-                        {% if song.unit_name %}
-                            {{ song.unit_name }}
-                        {% elif song.singer_list|length == 1 %}
-                        {% else %}
-                            なし
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% for singer in song.singer_list %}
-                            <span style="display: inline-block">{{ singer }}</span>
-                        {% endfor %}
-                    </td>
-                </tr>
-            {% endfor %}
-        {% endfor %}
+    {% for song in song_list %}
+        {% if song.removed == False %}
+            <tr>
+                <td>{{ song.cd_series_name }}</td>
+                <td>{{ song.cd_name }}</td>
+                <td>{{ song.song_title }}</td>
+                <td>
+                    {% if song.unit_name %}
+                        {{ song.unit_name }}
+                    {% elif song.singer_list|length == 1 %}
+                    {% else %}
+                        なし
+                    {% endif %}
+                </td>
+                <td>
+                    {% for singer in song.singer_list %}
+                        <span style="display: inline-block">{{ singer }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
     {% endfor %}
 </table>
 <script src="https://unpkg.com/vue@next"></script>

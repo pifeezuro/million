@@ -1,8 +1,6 @@
-import copy
-
 from django.shortcuts import render, redirect
 
-from million_songs.entities import CdSeriesExt, CdExt, SongExt, SingerExt
+from million_songs.entities import SingerExt, SongAll
 from million_songs.forms import CharacterForm, CdSeriesForm, CdsForm, UnitForm, SongForm, SearchForm
 from million_songs.models import Elements, Units, UnitMembers, Songs, WholeIdView, CdSongs
 
@@ -117,50 +115,40 @@ def view(request):
             else:
                 is_singer_search_and = True
 
-    cd_series_list = []
-    form_singers = []  # 検索フォームに入力されたキャラのリストのコピー and検索に使う
-    is_added = False  # その曲がリストに追加されたか
-    cd_series = None
-    cd = None
+    song_list = []
     song = None
-    cd_series_id_old = 0
     cd_id_old = 0
     song_id_old = 0
     unit_id_old = 0
-    for data in whole:  # CDシリーズ->CD->楽曲->歌手の形でオブジェクトに入れていく
-        if data.cd_series_id != cd_series_id_old:
-            cd_series = CdSeriesExt(data.cd_series_id, data.cd_series_name)
-            cd_series_list.append(cd_series)
-            cd_series_id_old = data.cd_series_id
-        if data.cd_id != cd_id_old:
-            cd = CdExt(data.cd_id, data.cd_series_id, data.cd_name, data.release_date)
-            cd_series.cd_list.append(cd)
+    for data in whole:
+        if data.cd_id != cd_id_old or data.song_id != song_id_old or data.unit_id != unit_id_old:
+            song = SongAll(data.cd_series_id, data.cd_series_name, data.cd_id,
+                           data.cd_name, data.release_date, data.cd_song_id, data.song_id, data.song_title,
+                           data.unit_id, data.unit_name, data.is_everyone)
+            song_list.append(song)
             cd_id_old = data.cd_id
-            song_id_old = 0
-            unit_id_old = 0
-        if data.song_id != song_id_old or data.unit_id != unit_id_old:
-            is_added = False
-            if is_singer_search_and:
-                form_singers = copy.deepcopy(cleaned_data['singers'])
-                # formのsingersをディープコピー
-            song = SongExt(data.song_id, data.cd_id, data.song_title, data.unit_id, data.unit_name)
-            if not is_singer_search_or and not is_singer_search_and:  # 歌手指定がない場合無条件でリストに追加
-                cd.song_list.append(song)
             song_id_old = data.song_id
             unit_id_old = data.unit_id
         singer = SingerExt(data.singer_id, data.singer_name, data.element_id, data.element_name)
         song.singer_list.append(singer)
-        if is_singer_search_or and str(singer.id) in cleaned_data['singers'] and not is_added:
-            # or検索の場合、曲の歌手とsingersリストに共通があれば条件を満たす曲としてリストに追加
-            cd.song_list.append(song)
-            is_added = True
-        if is_singer_search_and and str(singer.id) in form_singers:
-            # and検索の場合、曲のsingerがform_singersリストにあるとそのキャラをform_singersから削除
-            form_singers.remove(str(singer.id))
-        if is_singer_search_and:
-            # form_singersが空(リスト内の全キャラが曲のsingersに含まれている)の場合、条件を満たす曲としてリストに追加
-            if len(form_singers) == 0 and not is_added:
-                cd.song_list.append(song)
-                is_added = True
 
-    return render(request, 'million_songs/view.html', {'cd_series_list': cd_series_list, 'search_form': search_form})
+    if is_singer_search_or:
+        for song in song_list:
+            song.removed = True
+            for singer in song.singer_list:
+                if str(singer.id) in cleaned_data['singers']:
+                    song.removed = False
+                    break
+
+    if is_singer_search_and:
+        for song in song_list:
+            for form_singer in cleaned_data['singers']:
+                in_singer_list = False
+                for singer in song.singer_list:
+                    if str(singer.id) == form_singer:
+                        in_singer_list = True
+                if not in_singer_list:
+                    song.removed = True
+                    break
+
+    return render(request, 'million_songs/view.html', {'song_list': song_list, 'search_form': search_form})
